@@ -27,7 +27,11 @@ int main(int argc, char** argv ) {
 
 
 	QueryPerformanceCounter((LARGE_INTEGER *)&t1);// смотрим время после окончания цикла
-	getline(f, str);
+	
+	while (!f.eof()) {
+		getline(f, str);
+	}
+
 	QueryPerformanceCounter((LARGE_INTEGER *)&t2);// смотрим время после окончания цикла
 
 	cout << str << "\n Time spent:" << (t2-t1)/(1.*freq);
