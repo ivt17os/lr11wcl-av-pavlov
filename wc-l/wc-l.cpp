@@ -7,11 +7,13 @@
 #include <windows.h>
 
 using namespace std;
-
+#define N 4096
 int main(int argc, char** argv ) {
-    long long t1, t2, freq, nlines=0, nread;
-	char str[4096];
-	
+    long long t1, t2, freq;
+	char str[N];
+	unsigned lines = 0;
+	DWORD nRead;
+	BOOL bResult;
 	//if (argc == 1) 
     //{
     //    cerr << "Error: need text file\n";
@@ -20,24 +22,25 @@ int main(int argc, char** argv ) {
 	
 	cout << "Opening file a.txt\n"; // << argv[1] << "\n";
 	
-	FILE* f = fopen("a.txt", "rb");
+	HANDLE f = CreateFile(L"a.txt", GENERIC_READ, FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
 	
     QueryPerformanceFrequency((LARGE_INTEGER *)&freq);// запрашиваем число тиков в 1 сек
 
 
 	QueryPerformanceCounter((LARGE_INTEGER *)&t1);// смотрим время после окончания цикла
 	
-	while (!feof(f)) {
-		nread = fread(str, 1, 4096, f);
-		for (int i=0; i<nread; i++)
-			if (str[i]=='\n')
-				nlines++;
-	}
+do{
+	bResult = ReadFile (f, str, N, &nRead, NULL);
+	for (DWORD i = 0; i < nRead; ++i)
+		if (str [i]=='\n')
+			lines++;
+} while (!(bResult && nRead == 0));
 
 	QueryPerformanceCounter((LARGE_INTEGER *)&t2);// смотрим время после окончания цикла
 
-	fclose(f);
-
-	cout <<  nlines << " lines in file a.txt\n Time spent:" << (t2-t1)/(1.*freq);
+	CloseHandle(f);
+	cout.precision(3);
+	cout <<  " \n Time spent:" << std::fixed << (t2-t1)/(1.*freq) << '\n';
+	cout << lines << "lines\n";
 	return 0;
 }
